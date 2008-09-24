@@ -1,0 +1,15 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+bin/multi_rbackup_cli
+bin/rsync_backup_cli
+lib/backup_job.rb
+lib/multi_rbackup.rb
+lib/rsyncer.rb
+lib/snapshot_rotater.rb
+spec/multi-rbackup.sample.conf
+spec/rsyncer_spec.rb
+spec/snapshot_rotater_spec.rb
+spec/spec.opts
+spec/spec_helper.rb

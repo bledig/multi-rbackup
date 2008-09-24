@@ -1,0 +1,6 @@
+=== 0.0.1 / 2008-09-24
+
+* 1 major enhancement
+
+  * first working alpha release
+

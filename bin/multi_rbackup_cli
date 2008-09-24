@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+# Backup multiple Server per Rsync
+# 
+# Autor: Bernd Ledig <bernd@ledig.info>
+#
+
+
+require "getoptlong"
+require File.expand_path("#{File.dirname(__FILE__)}/../lib/multi_rbackup")
+
+
+parser = GetoptLong.new(
+  ['-h', '--help', GetoptLong::NO_ARGUMENT],
+  ['-l', '--log-file', GetoptLong::REQUIRED_ARGUMENT],
+  ['-v', '--verbose', GetoptLong::NO_ARGUMENT],
+  ['--debug', GetoptLong::NO_ARGUMENT]
+)
+
+def print_usage  err_code, msg=nil
+  puts ''
+  puts msg+"\n\n" if msg
+  puts <<EOT
+Usage:  multi-rbackup <options> config-file
+Options:
+   -l  --log-dir                  full filepath for logs, optional default is '/tmp'
+   -v  --verbose                  print executed commands
+       --debug                    debug on (test only)
+EOT
+  exit err_code
+end
+
+
+@global_options = {:excludes => nil, :log_dir => '/tmp'}
+begin
+  parser.each do |opt, arg|
+    case opt
+      when '-h'
+        print_usage 0
+      when '-l'
+        @global_options[:log_dir] = arg
+      when '-v'
+        @global_options[:verbose] = true
+      when '--debug'
+        @global_options[:debug] = true
+      else
+        print_usage 2, "Option #{opt} not yet implemented!"
+    end
+  end
+rescue => ex
+  print_usage 1, ex.to_s
+end
+
+unless @global_options[:verbose]
+  @global_options[:quiet] = true
+end
+
+print_usage(1, "Missing config-file!") if ARGV.size != 1
+
+@backup_jobs = []
+
+def global_excludes(excludes)
+  @global_options[:excludes] = excludes
+end
+
+def backup name, options
+  log_file = File.join(@global_options[:log_dir], "multi-rbackup-#{name}.log")
+  options = @global_options.merge(:log_file => log_file).merge(options)
+  @backup_jobs << MultiRbackup::BackupJob.new( name, options )
+end
+
+load(ARGV[0])
+puts <<-EOT
+==========================================================================
+multi-backup  #{MultiRbackup::VERSION}  Autor: Bernd Ledig <bernd@ledig.info>
+config ........ #{ARGV[0]}
+==========================================================================
+EOT
+
+
+for backup_job in @backup_jobs
+  print sprintf("    Backupjob: %-35s  ", backup_job.name)
+  begin
+    backup_job.execute
+    puts "[ok]"
+  rescue => ex
+    puts "[fail]"
+  end
+end
+
+puts <<-EOT
+==========================================================================
+
+
+  Job-Reports
+
+EOT
+for backup_job in @backup_jobs
+  puts <<-EOT
+==========================================================================
+Backupjob ...... #{backup_job.name}
+Result ......... #{backup_job.last_exception ? "[fail]":"[ok]"}
+  EOT
+  puts "\t#{backup_job.last_exception}" if backup_job.last_exception
+  puts backup_job.messages
+end
+

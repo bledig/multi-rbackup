@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+# Backup per Rsync
+# Autor: Bernd Ledig <bernd@ledig.info>
+#
+
+require "getoptlong"
+require File.expand_path("#{File.dirname(__FILE__)}/../lib/multi_rbackup")
+
+
+parser = GetoptLong.new(
+  ['-h', '--help', GetoptLong::NO_ARGUMENT],
+  ['-f', '--from-server', GetoptLong::REQUIRED_ARGUMENT],
+  ['-t', '--to-server', GetoptLong::REQUIRED_ARGUMENT],
+  ['-d', '--dest-dir', GetoptLong::REQUIRED_ARGUMENT],
+  ['-e', '--exclude', GetoptLong::REQUIRED_ARGUMENT],
+  ['-l', '--log-file', GetoptLong::REQUIRED_ARGUMENT],
+  ['-n', '--no-rotate', GetoptLong::NO_ARGUMENT],
+  ['-v', '--verbose', GetoptLong::NO_ARGUMENT],
+  ['--debug', GetoptLong::NO_ARGUMENT]
+)
+
+def print_usage  err_code, msg=nil
+  puts ''
+  puts msg+"\n\n" if msg
+  puts <<EOT
+Usage:  rsync-backup <options> dirs... [-- <rsync-options>]
+Options:
+   -f  --from-server server       get backup from this server
+   -t  --to-server server         save backup to this server
+   -d  --dest-dir dir             dest-dir for backups,  required
+   -e  --exclude                  exclude pattern for rsync
+   -l  --log-file                 full logfilepath, optional default is '/tmp/rsync-backup-<timestamp>.log'
+   -n  --no-rotate                no snapshot-rotate of the backup
+   -v  --verbose                  print executed commands
+       --debug                    debug on (test only)
+Attention! ONLY one option --from-server or --to-server are allowed.
+EOT
+  exit err_code
+end
+
+
+options = {}
+options[:excludes] = []
+begin
+  parser.each do |opt, arg|
+    case opt
+      when '-h'
+        print_usage 0
+      when '-f'
+        options[:from_server] = arg
+      when '-t'
+        options[:to_server] = arg
+      when '-d'
+        options[:dest_dir] = arg
+      when '-l'
+        options[:log_file] = arg
+      when '-e'
+        options[:excludes] << arg
+      when '-n'
+        options[:no_rotate] = true
+      when '-v'
+        options[:verbose] = true
+      when '--debug'
+        options[:debug] = true
+      else
+        print_usage 2, "Option #{opt} not yet implemented!"
+    end
+  end
+rescue => e
+  print_usage 1
+end
+
+add_rsync_options = ARGV.select{|ropt| /^-/ =~ ropt }
+options[:add_rsync_options] = add_rsync_options
+options[:backup_dirs] = (ARGV - add_rsync_options)
+
+backup_job = MultiRbackup::BackupJob.new 'rsync-backup', options
+
+begin
+  backup_job.validate 
+rescue => ex
+  print_usage 1, ex.to_s
+end
+
+backup_job.execute
+puts <<-EOT
+==========================================================================
+rsync-backup #{MultiRbackup::VERSION} 
+Author: Bernd Ledig <bernd@ledig.info>
+EOT
+
+exit
+
