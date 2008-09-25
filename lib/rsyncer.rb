@@ -119,7 +119,8 @@ EOT
         return if @debug
         if @quiet
           @messages << `#{cmd} 2>&1`
-          execute_ok = ($? == 0)
+          # rsnyc-exit-code 24-'Partial transfer due to vanished source files' ignored
+          execute_ok = ($? == 0 || $?==24)
           @messages << "\n"
         else
           execute_ok = system(cmd)
