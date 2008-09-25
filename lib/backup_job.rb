@@ -34,7 +34,7 @@ module MultiRbackup
 
     def messages
       msg = @rsyncer.messages
-      #msg << @rotator.messages unless options[:no_rotate]
+      msg << @rotator.messages unless options[:no_rotate]
       msg
     end
 

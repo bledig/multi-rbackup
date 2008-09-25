@@ -13,10 +13,12 @@ module MultiRbackup
   class SnapshotRotater
 
     attr_accessor :debug, :verbose, :quiet, :backup_date
+    attr_reader :messages
 
     def initialize backup_dir, server=nil
       @backup_dir = backup_dir
       @server = server
+      @messages = ""
     end
 
     def execute
@@ -55,7 +57,7 @@ module MultiRbackup
       log "execute:  "+cmd if @verbose
       return if @debug
       if @quiet
-        `#{cmd}`
+        @messages << `#{cmd} 2>&1`
         execute_ok = ($? == 0)
       else
         execute_ok = system(cmd)
@@ -64,6 +66,7 @@ module MultiRbackup
     end
 
     def log msg
+      @messages << msg
       puts msg unless @quiet
     end
   end

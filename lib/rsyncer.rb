@@ -118,7 +118,7 @@ EOT
         log cmd if @verbose
         return if @debug
         if @quiet
-          @messages << `#{cmd}`
+          @messages << `#{cmd} 2>&1`
           execute_ok = ($? == 0)
           @messages << "\n"
         else

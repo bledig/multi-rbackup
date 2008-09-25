@@ -6,9 +6,10 @@
             <name>multi-rbackup</name>
             <source-roots>
                 <root id="src.dir"/>
+                <root id="src.bin.dir"/>
             </source-roots>
             <test-roots>
-                <root id="test.src.dir"/>
+                <root id="test.spec.dir" name="RSpecs"/>
             </test-roots>
         </data>
     </configuration>
