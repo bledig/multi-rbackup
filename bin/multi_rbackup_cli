@@ -98,16 +98,17 @@ puts <<-EOT
 
 
   Job-Reports
-
 EOT
 
 @backup_jobs.each do |backup_job|
   puts <<-EOT
+
 ==========================================================================
 Backupjob ...... #{backup_job.name}
 Result ......... #{backup_job.last_exception ? "[fail]":"[ok]"}
-  EOT
+EOT
   puts "\t#{backup_job.last_exception}" if backup_job.last_exception
   puts backup_job.messages
+  puts ""
 end
 

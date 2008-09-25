@@ -58,6 +58,7 @@ module MultiRbackup
       return if $debug
       if @quiet
         @messages << `#{cmd} 2>&1`
+        @messages << "\n"
         execute_ok = ($? == 0)
       else
         execute_ok = system(cmd)
@@ -67,6 +68,7 @@ module MultiRbackup
 
     def log msg
       @messages << msg
+      @messages << "\n"
       puts msg unless @quiet
     end
   end
