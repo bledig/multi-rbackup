@@ -9,6 +9,6 @@ $LOAD_PATH.unshift lib_path unless $LOAD_PATH.include?(lib_path)
 require "backup_job"
 
 module MultiRbackup
-  VERSION = "0.0.1"
+  VERSION = "0.0.2"
 end
 
