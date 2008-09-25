@@ -29,8 +29,8 @@ EOT
   exit err_code
 end
 
-
-@global_options = {:excludes => nil, :log_dir => '/tmp'}
+$debug = false
+@global_options = {:excludes => [], :log_dir => '/tmp'}
 begin
   parser.each do |opt, arg|
     case opt
@@ -41,7 +41,7 @@ begin
       when '-v'
         @global_options[:verbose] = true
       when '--debug'
-        @global_options[:debug] = true
+        $debug = true
       else
         print_usage 2, "Option #{opt} not yet implemented!"
     end
@@ -52,6 +52,11 @@ end
 
 unless @global_options[:verbose]
   @global_options[:quiet] = true
+end
+
+if $debug
+  @global_options[:verbose] = true
+  @global_options[:quiet] = false
 end
 
 print_usage(1, "Missing config-file!") if ARGV.size != 1
@@ -65,6 +70,7 @@ end
 def backup name, options
   log_file = File.join(@global_options[:log_dir], "multi-rbackup-#{name}.log")
   options = @global_options.merge(:log_file => log_file).merge(options)
+  puts "Create Backupjob '#{name}' with #{options.inspect}" if $debug
   @backup_jobs << MultiRbackup::BackupJob.new( name, options )
 end
 

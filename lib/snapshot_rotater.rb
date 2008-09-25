@@ -12,7 +12,7 @@
 module MultiRbackup
   class SnapshotRotater
 
-    attr_accessor :debug, :verbose, :quiet, :backup_date
+    attr_accessor :verbose, :quiet, :backup_date
     attr_reader :messages
 
     def initialize backup_dir, server=nil
@@ -55,7 +55,7 @@ module MultiRbackup
       cmd = args.join(' ')
       cmd = "ssh #{@server} '#{cmd}'" if @server
       log "execute:  "+cmd if @verbose
-      return if @debug
+      return if $debug
       if @quiet
         @messages << `#{cmd} 2>&1`
         execute_ok = ($? == 0)

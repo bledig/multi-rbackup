@@ -10,7 +10,8 @@ module MultiRbackup
   #   log_file :          full logfilepath, optional, default is '/tmp/rsync-backup-<timestamp>.log'
   #   add_rsync_options : optional Array with org. rsync options
   #   verbose :           print executed commands
-  #   debug :             set debug-mode
+  #
+  # use global Var $debug
   #
   class Rsyncer
 
@@ -19,7 +20,7 @@ module MultiRbackup
                     "--log-file-format=\"%i %8l %8b %n\"".freeze
 
     attr_accessor :from_server, :to_server, :dest_dir, :backup_dirs, :excludes, 
-                  :log_file, :add_rsync_options, :debug, :verbose, :quiet
+                  :log_file, :add_rsync_options, :verbose, :quiet
 
 
     attr_reader :messages
@@ -33,13 +34,12 @@ module MultiRbackup
     #   :add_rsync_options : optional Array with org. rsync options
     #   :verbose :           print executed commands
     #   :quiet :              no messages
-    #   :debug :             set debug-mode
     #
     def initialize options=nil
       @validated = false
       if options
         [:from_server, :to_server, :dest_dir, :backup_dirs, :excludes,
-         :log_file, :add_rsync_options, :debug, :verbose, :quiet].each do |attr| 
+         :log_file, :add_rsync_options, :verbose, :quiet].each do |attr| 
           self.send("#{attr}=", options[attr])
         end
       end
@@ -102,7 +102,7 @@ rsync-options.. \n\t#{@rsync_options.gsub(/[\n]/, "\n\t")}
 ==========================================================================
 EOT
 
-      FileUtils.rm_f(@log_file) unless @debug
+      FileUtils.rm_f(@log_file) unless $debug
       system_cmd(@rsync_cmd)
 
 
@@ -116,7 +116,7 @@ EOT
 
       def system_cmd cmd
         log cmd if @verbose
-        return if @debug
+        return if $debug
         if @quiet
           @messages << `#{cmd} 2>&1`
           # rsnyc-exit-code 24-'Partial transfer due to vanished source files' ignored
