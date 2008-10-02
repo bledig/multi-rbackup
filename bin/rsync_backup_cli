@@ -38,7 +38,7 @@ EOT
   exit err_code
 end
 
-
+$debug = false
 options = {}
 options[:excludes] = []
 begin
@@ -61,7 +61,7 @@ begin
       when '-v'
         options[:verbose] = true
       when '--debug'
-        options[:debug] = true
+        $debug = true
       else
         print_usage 2, "Option #{opt} not yet implemented!"
     end
