@@ -1,3 +1,7 @@
+=== 0.1.2 / 2008-10-03
+
+  * Bugfix: rsync_backup_cli has debug ignored
+
 === 0.1.1 / 2008-09-26
 
   * first release canidate
