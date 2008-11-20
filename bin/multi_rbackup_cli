@@ -63,16 +63,23 @@ print_usage(1, "Missing config-file!") if ARGV.size != 1
 
 @backup_jobs = []
 
+
+# DSL-Methoden für die Conf-Datei
+
+# Festlegen globaler Excludes
 def global_excludes(excludes)
   @global_options[:excludes] = excludes
 end
 
+# Definieren eines Backup-Jobs
 def backup name, options
   log_file = File.join(@global_options[:log_dir], "multi-rbackup-#{name}.log")
   options = @global_options.merge(:log_file => log_file).merge(options)
   puts "Create Backupjob '#{name}' with #{options.inspect}" if $debug
   @backup_jobs << MultiRbackup::BackupJob.new( name, options )
 end
+
+# Ende DSL-Methoden
 
 load(ARGV[0])
 puts <<-EOT
